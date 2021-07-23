@@ -6,7 +6,14 @@ import pandas as pd
 
 
 def split_dataset(data, label, ratio, seed):
-    pass
+    total_data = len(data)
+    assert (len(data) == len(label))
+    np.random.seed(seed)
+    selected_index = np.random.randint(0, total_data, int(total_data * ratio))
+
+    # TODO: split dataset base on the ratio
+
+    return
 
 
 def get_dataset(PATH, IMAGE_SIZE, label_file, check=False):
@@ -19,7 +26,7 @@ def get_dataset(PATH, IMAGE_SIZE, label_file, check=False):
     :param check: check the label after normalized in resized image
     :return: numpy format image and label
     """
-    
+
     image_names = os.listdir(PATH)
     data_frame = pd.read_csv(label_file, sep="\t").to_numpy()
 
@@ -60,5 +67,9 @@ if __name__ == "__main__":
     check = False
 
     data, label = get_dataset(PATH, IMAGE_SIZE, label_file, check)
+
+    RATIO = 0.1
+    SEED = 0
+    split_dataset(data, label, RATIO, SEED)
 
     print("Finish.")
