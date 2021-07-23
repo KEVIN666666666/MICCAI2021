@@ -13,12 +13,13 @@ cropped_information = cropped_information.to_numpy()
 original_data[:, 1] = original_data[:, 1] - cropped_information[:, 1]
 original_data[:, 2] = original_data[:, 2] - cropped_information[:, 0]
 
-# img = cv2.imread("../pre_data_V1/1.jpg")
-# point = (int(original_data[0, 1]), int(original_data[0, 2]))  # column, row
-# cv2.rectangle(img, pt1=(point[0] - 5, point[1] - 5), pt2=(point[0] + 5, point[1] + 5), color=(0, 255, 0))
-# cv2.imshow("1", img)
-# cv2.waitKey()
-# cv2.destroyAllWindows()
+
+img = cv2.imread("../pre_data_V1/1.jpg")
+point = (int(original_data[0, 1]), int(original_data[0, 2]))  # column, row
+cv2.rectangle(img, pt1=(point[0] - 5, point[1] - 5), pt2=(point[0] + 5, point[1] + 5), color=(0, 255, 0))
+cv2.imshow("1", img)
+cv2.waitKey()
+cv2.destroyAllWindows()
 
 with open("task_2.txt", "w", encoding="utf-8") as file:
     file.write("index" + "\t" + "column" + "\t" + "row" + "\n")
