@@ -15,6 +15,10 @@ GAMMA Challenge Subtrack 3 Official Baseline: https://aistudio.baidu.com/aistudi
 
 ![image](https://user-images.githubusercontent.com/49013637/126600213-8bdd037f-07de-4a8e-8f50-2b98e1cd3869.png)
 
+# Reference
+
+https://github.com/WZMIAOMIAO/deep-learning-for-image-processing/tree/master/tensorflow_classification/Test9_efficientNet
+
 # Others
 
 fuck you man， i'm in
