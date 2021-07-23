@@ -5,7 +5,21 @@ import os
 import pandas as pd
 
 
+def split_dataset(data, label, ratio, seed):
+    pass
+
+
 def get_dataset(PATH, IMAGE_SIZE, label_file, check=False):
+    """
+    return data in RGB mode, as well as its label for task 2
+    the label is returned in a normalized ratio of the image
+    :param PATH: image path, only accept jpg image
+    :param IMAGE_SIZE: the desired output size
+    :param label_file: the label file path, named task_2.txt
+    :param check: check the label after normalized in resized image
+    :return: numpy format image and label
+    """
+    
     image_names = os.listdir(PATH)
     data_frame = pd.read_csv(label_file, sep="\t").to_numpy()
 
