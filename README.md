@@ -3,6 +3,8 @@ A private repository for the MICCAI2021 GAMMA competition.
 
 official contest link: https://aistudio.baidu.com/aistudio/competition/detail/90
 
+GAMMA比赛介绍&任务baseline讲解：https://www.bilibili.com/video/BV1ug411M7br
+
 # Baselines
 
 GAMMA Challenge Subtrack 1 Official baseline: https://aistudio.baidu.com/aistudio/projectdetail/1948228
