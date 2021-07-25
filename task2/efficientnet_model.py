@@ -248,7 +248,7 @@ def efficient_net(width_coefficient,
         if dropout_rate > 0:
             x = layers.Dropout(dropout_rate, name="top_dropout")(x)
         x = layers.Dense(units=num_classes,
-                         activation="softmax",
+                         activation="sigmoid",
                          kernel_initializer=DENSE_KERNEL_INITIALIZER,
                          name="predictions")(x)
 
