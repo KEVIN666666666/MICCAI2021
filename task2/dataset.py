@@ -9,11 +9,27 @@ def split_dataset(data, label, ratio, seed):
     total_data = len(data)
     assert (len(data) == len(label))
     np.random.seed(seed)
-    selected_index = np.random.randint(0, total_data, int(total_data * ratio))
+    selected_index = np.random.choice(range(total_data + 1), int(total_data * ratio), replace=False)
 
-    # TODO: split dataset base on the ratio
+    train_X = []
+    train_Y = []
+    test_X = []
+    test_Y = []
 
-    return
+    for i in range(total_data):
+        if i in selected_index:
+            test_X.append(data[i])
+            test_Y.append(label[i])
+        else:
+            train_X.append(data[i])
+            train_Y.append(label[i])
+
+    train_X = np.array(train_X)
+    train_Y = np.array(train_Y)
+    test_X = np.array(test_X)
+    test_Y = np.array(test_Y)
+
+    return train_X, train_Y, test_X, test_Y
 
 
 def get_dataset(PATH, IMAGE_SIZE, label_file, check=False):
@@ -61,7 +77,7 @@ def get_dataset(PATH, IMAGE_SIZE, label_file, check=False):
 
 
 if __name__ == "__main__":
-    IMAGE_SIZE = 1200
+    IMAGE_SIZE = 600
     PATH = "../pre_data_V1/"
     label_file = "./task_2.txt"
     check = False
@@ -70,6 +86,6 @@ if __name__ == "__main__":
 
     RATIO = 0.1
     SEED = 0
-    split_dataset(data, label, RATIO, SEED)
+    train_X, train_Y, test_X, test_Y = split_dataset(data, label, RATIO, SEED)
 
     print("Finish.")
