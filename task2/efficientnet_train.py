@@ -17,7 +17,7 @@ img_size = {"B0": 224,
 num_model = "B7"
 im_height = im_width = img_size[num_model]
 num_classes = 2
-freeze_layers = True
+freeze_layers = False
 initial_lr = 1e-4  # 0.0001
 
 model = create_model(num_classes=num_classes)
