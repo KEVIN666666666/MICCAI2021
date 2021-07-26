@@ -80,7 +80,7 @@ train_loss = tf.keras.metrics.Mean(name='train_loss')
 train_accuracy = tf.keras.metrics.Accuracy(name='train_accuracy')
 
 val_loss = tf.keras.metrics.Mean(name='val_loss')
-val_accuracy = tf.keras.metrics.SparseCategoricalAccuracy(name='val_accuracy')
+val_accuracy = tf.keras.metrics.Accuracy(name='val_accuracy')
 
 
 @tf.function
