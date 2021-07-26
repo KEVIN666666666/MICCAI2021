@@ -5,7 +5,6 @@ from efficientnet_model import efficientnet_b7 as create_model
 from dataset import get_dataset, split_dataset
 import os
 
-
 img_size = {"B0": 224,
             "B1": 240,
             "B2": 260,
@@ -52,8 +51,28 @@ data, label = get_dataset(PATH, IMAGE_SIZE, label_file, check)
 RATIO = 0.1
 SEED = 0
 train_X, train_Y, test_X, test_Y = split_dataset(data, label, RATIO, SEED)
+train_dataset = tf.data.Dataset.from_tensor_slices((train_X, train_Y))
+test_dataset = tf.data.Dataset.from_tensor_slices((test_X, test_Y))
 
-# TODO(Kuo): training
+
+# TODO: Standardization, Augmentation
+
+
+def normalization(image, label):
+    # normalization
+    return image / 255, label
+
+
+def augment(image, label):
+    # data augmentation
+    return image, label
+
+
+BATCH_SIZE = 1
+train_dataset = train_dataset.map(normalization).map(augment).batch(BATCH_SIZE)
+test_dataset = test_dataset.map(normalization).batch(BATCH_SIZE)
+
+# model compile
 loss_object = tf.keras.losses.MeanSquaredError()
 optimizer = tf.keras.optimizers.Adam(learning_rate=initial_lr)
 
@@ -94,10 +113,8 @@ for epoch in range(epochs):
     val_accuracy.reset_states()  # clear history info
 
     # train
-    train_bar = tqdm(zip(train_X, train_Y))
+    train_bar = tqdm(train_dataset)
     for images, labels in train_bar:
-        images = np.expand_dims(images, axis=0)
-        labels = np.expand_dims(labels, axis=0)
         train_step(images, labels)
 
         # print train process
@@ -105,10 +122,8 @@ for epoch in range(epochs):
                                                                              epochs,
                                                                              train_loss.result(),
                                                                              train_accuracy.result())
-    val_bar = tqdm(zip(test_X, test_Y))
+    val_bar = tqdm(test_dataset)
     for images, labels in val_bar:
-        images = np.expand_dims(images, axis=0)
-        labels = np.expand_dims(labels, axis=0)
         val_step(images, labels)
 
         # print val process
@@ -130,6 +145,5 @@ for epoch in range(epochs):
         best_val_acc = val_accuracy.result()
         save_name = "./save_weights/efficientnet.ckpt"
         model.save_weights(save_name, save_format="tf")
-
 
 print("Finish.")
