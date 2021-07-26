@@ -132,13 +132,13 @@ for epoch in range(epochs):
                                                                            val_loss.result(),
                                                                            val_accuracy.result())
 
-    # writing training loss and acc
-    print("train loss", train_loss.result(), epoch)
-    print("train accuracy", train_accuracy.result(), epoch)
-
-    # writing validation loss and acc
-    print("validation loss", val_loss.result(), epoch)
-    print("validation accuracy", val_accuracy.result(), epoch)
+    # # writing training loss and acc
+    # print("train loss", train_loss.result(), epoch)
+    # print("train accuracy", train_accuracy.result(), epoch)
+    #
+    # # writing validation loss and acc
+    # print("validation loss", val_loss.result(), epoch)
+    # print("validation accuracy", val_accuracy.result(), epoch)
 
     # only save best weights
     if val_accuracy.result() > best_val_acc:
