@@ -24,7 +24,7 @@ model = create_model(num_classes=num_classes)
 
 # load weights
 # TODO: Download pretrained model
-pre_weights_path = './efficientnetb7.h5'
+pre_weights_path = '../../efficientnetb7.h5'
 # assert os.path.exists(pre_weights_path), "cannot find {}".format(pre_weights_path)
 if os.path.exists(pre_weights_path):
     model.load_weights(pre_weights_path, by_name=True, skip_mismatch=True)
@@ -73,14 +73,14 @@ train_dataset = train_dataset.map(normalization).map(augment).batch(BATCH_SIZE)
 test_dataset = test_dataset.map(normalization).batch(BATCH_SIZE)
 
 # model compile
-loss_object = tf.keras.losses.MeanSquaredError()
+loss_object = tf.keras.losses.MeanAbsoluteError()
 optimizer = tf.keras.optimizers.Adam(learning_rate=initial_lr)
 
 train_loss = tf.keras.metrics.Mean(name='train_loss')
-train_accuracy = tf.keras.metrics.Accuracy(name='train_accuracy')
+train_accuracy = tf.keras.metrics.MeanSquaredError(name='train_accuracy')
 
 val_loss = tf.keras.metrics.Mean(name='val_loss')
-val_accuracy = tf.keras.metrics.Accuracy(name='val_accuracy')
+val_accuracy = tf.keras.metrics.MeanSquaredError(name='val_accuracy')
 
 
 @tf.function
@@ -104,8 +104,8 @@ def val_step(val_images, val_labels):
     val_accuracy(val_labels, output)
 
 
-best_val_acc = 0.
-epochs = 30
+best_val_error = 1.
+epochs = 100
 for epoch in range(epochs):
     train_loss.reset_states()  # clear history info
     train_accuracy.reset_states()  # clear history info
@@ -141,7 +141,7 @@ for epoch in range(epochs):
     # print("validation accuracy", val_accuracy.result(), epoch)
 
     # only save best weights
-    if val_accuracy.result() > best_val_acc:
+    if val_accuracy.result() < best_val_error:
         best_val_acc = val_accuracy.result()
         save_name = "./save_weights/efficientnet.ckpt"
         model.save_weights(save_name, save_format="tf")
