@@ -19,7 +19,7 @@ GAMMA Challenge Subtrack 3 Official Baseline: https://aistudio.baidu.com/aistudi
 
 # Evaluation
 
-![image](https://user-images.githubusercontent.com/49013637/127118920-06d7994e-6c13-462f-9c54-c33fa645404d.png)
+![image](https://user-images.githubusercontent.com/49013637/127119018-21780394-c880-43a0-8400-357527f278fe.png)
 
 # Reference
 
