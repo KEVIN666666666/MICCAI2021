@@ -3,6 +3,7 @@ import tensorflow as tf
 from tqdm import tqdm
 from efficientnet_model import efficientnet_b7 as create_model
 from dataset import get_dataset, split_dataset
+from tensorflow.keras.losses import Loss
 import os
 
 img_size = {"B0": 224,
@@ -73,6 +74,16 @@ train_dataset = train_dataset.map(normalization).map(augment).batch(BATCH_SIZE)
 test_dataset = test_dataset.map(normalization).batch(BATCH_SIZE)
 
 # model compile
+
+
+# TODO: Custom loss function
+class MeanSquaredError(Loss):
+    def call(self, y_true, y_pred):
+        y_pred = tf.convert_to_tensor(y_pred)
+        y_true = tf.cast(y_true, y_pred.dtype)
+        return tf.reduce_mean(np.square(y_pred - y_true), axis=-1)
+
+
 loss_object = tf.keras.losses.MeanAbsoluteError()
 optimizer = tf.keras.optimizers.Adam(learning_rate=initial_lr)
 
@@ -115,6 +126,7 @@ for epoch in range(epochs):
     # train
     train_bar = tqdm(train_dataset)
     for images, labels in train_bar:
+        # TODO: Visualize the batch
         train_step(images, labels)
 
         # print train process
@@ -141,6 +153,7 @@ for epoch in range(epochs):
     # print("validation accuracy", val_accuracy.result(), epoch)
 
     # only save best weights
+    # TODO: Evaluate and visualize the result
     if val_accuracy.result() < best_val_error:
         best_val_acc = val_accuracy.result()
         save_name = "./save_weights/efficientnet.ckpt"
