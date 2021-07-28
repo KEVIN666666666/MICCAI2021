@@ -139,6 +139,7 @@ def visualize_batch(images, labels, output, epoch, index, prefix):
 
 
 best_score = 0
+best_epoch = -1
 epochs = 100
 for epoch in range(epochs):
     train_loss.reset_states()  # clear history info
@@ -193,6 +194,7 @@ for epoch in range(epochs):
     # only save best weights
     # Loss and Accuracy Evaluate
     if mean(validation_scores) > best_score:
+        best_epoch = epoch + 1
         best_score = mean(validation_scores)
         save_name = "./save_weights/efficientnet.ckpt"
         model.save_weights(save_name, save_format="tf")
@@ -203,4 +205,6 @@ for epoch in range(epochs):
                 zip(validation_images, validation_labels, validation_predictions)):
             visualize_batch(images, labels, output, epoch, index, prefix)
 
+
+print(f"Best score: {best_score} in epoch {best_epoch}")
 print("Finish.")
