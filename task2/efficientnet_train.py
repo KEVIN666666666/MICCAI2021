@@ -7,7 +7,6 @@ from tensorflow.keras.losses import Loss
 from matplotlib import pyplot as plt
 import os
 
-
 img_size = {"B0": 224,
             "B1": 240,
             "B2": 260,
@@ -75,22 +74,31 @@ test_dataset = test_dataset.map(normalization).batch(BATCH_SIZE)
 
 
 # model compile
-# TODO: Custom loss function
-class MeanSquaredError(Loss):
+# Custom loss function
+class AverageEuclideanDistance(Loss):
     def call(self, y_true, y_pred):
+        # print(y_true, y_pred)
         y_pred = tf.convert_to_tensor(y_pred)
         y_true = tf.cast(y_true, y_pred.dtype)
-        return tf.reduce_mean(np.square(y_pred - y_true), axis=-1)
+        return tf.reduce_mean(tf.sqrt(tf.square(y_pred - y_true)), axis=-1)
 
 
-loss_object = tf.keras.losses.MeanAbsoluteError()
+def score(loss):
+    return 1 / (loss + 0.1)
+
+
+def mean(l: list):
+    return sum(l) / len(l)
+
+
+loss_object = AverageEuclideanDistance()
 optimizer = tf.keras.optimizers.Adam(learning_rate=initial_lr)
 
 train_loss = tf.keras.metrics.Mean(name='train_loss')
-train_accuracy = tf.keras.metrics.MeanSquaredError(name='train_accuracy')
+# train_accuracy = tf.keras.metrics.MeanSquaredError(name='train_accuracy')
 
 val_loss = tf.keras.metrics.Mean(name='val_loss')
-val_accuracy = tf.keras.metrics.MeanSquaredError(name='val_accuracy')
+# val_accuracy = tf.keras.metrics.MeanSquaredError(name='val_accuracy')
 
 
 @tf.function
@@ -102,8 +110,8 @@ def train_step(train_images, train_labels):
     optimizer.apply_gradients(zip(gradients, model.trainable_variables))
 
     train_loss(loss)
-    train_accuracy(train_labels, output)
-    return output
+    # train_accuracy(train_labels, output)
+    return output, loss
 
 
 @tf.function
@@ -112,8 +120,8 @@ def val_step(val_images, val_labels):
     loss = loss_object(val_labels, output)
 
     val_loss(loss)
-    val_accuracy(val_labels, output)
-    return output
+    # val_accuracy(val_labels, output)
+    return output, loss
 
 
 def visualize_batch(images, labels, output, epoch, index, prefix):
@@ -124,51 +132,55 @@ def visualize_batch(images, labels, output, epoch, index, prefix):
     image[point[0] - 5:point[0] + 5, point[1] - 5:point[1] + 5, :] = [1, 1, 1]
     pred = output[0]
     pred = (int(pred[0] * shape[0]), int(pred[1] * shape[1]))
-    image[pred[0] - 5:pred[0] + 5, pred[1] - 5:pred[1] + 5, :] = [0, 0, 0]
+    image[pred[0] - 5:pred[0] + 5, pred[1] - 5:pred[1] + 5, :] = [0, 0, 1]
     plt.imshow(image)
     # plt.show()
     plt.savefig(f"{prefix}_epoch{epoch}_index{index}.png")
 
 
-best_val_error = 1.
+best_score = 0
 epochs = 100
 for epoch in range(epochs):
     train_loss.reset_states()  # clear history info
-    train_accuracy.reset_states()  # clear history info
+    # train_accuracy.reset_states()  # clear history info
     val_loss.reset_states()  # clear history info
-    val_accuracy.reset_states()  # clear history info
+    # val_accuracy.reset_states()  # clear history info
 
     # train
     train_bar = tqdm(train_dataset)
+    train_scores = []
     for index, (images, labels) in enumerate(train_bar):
-        output = train_step(images, labels)
-
+        output, loss = train_step(images, labels)
+        train_scores.append(score(loss))
         # Save and Visualize the batch
-        save_dir_prefix = "./train_image/train_image"
-        visualize_batch(images, labels, output, epoch, index, save_dir_prefix)
+        if index % 10 == 0:
+            save_dir_prefix = "./train_image/train_image"
+            visualize_batch(images, labels, output, epoch, index, save_dir_prefix)
 
         # print train process
-        train_bar.desc = "train epoch[{}/{}] loss:{:.3f}, acc:{:.3f}".format(epoch + 1,
-                                                                             epochs,
-                                                                             train_loss.result(),
-                                                                             train_accuracy.result())
+        train_bar.desc = "train epoch[{}/{}] AED loss:{:.3f}, score:{:.3f}".format(epoch + 1,
+                                                                                   epochs,
+                                                                                   train_loss.result(),
+                                                                                   mean(train_scores))
 
     val_bar = tqdm(test_dataset)
     validation_images = []
     validation_labels = []
     validation_predictions = []
+    validation_scores = []
     for images, labels in val_bar:
         # Save the validation image, label and prediction
-        output = val_step(images, labels)
+        output, loss = val_step(images, labels)
+        validation_scores.append(score(loss))
         validation_images.append(images)
         validation_labels.append(labels)
         validation_predictions.append(output)
 
         # print val process
-        val_bar.desc = "valid epoch[{}/{}] loss:{:.3f}, acc:{:.3f}".format(epoch + 1,
-                                                                           epochs,
-                                                                           val_loss.result(),
-                                                                           val_accuracy.result())
+        val_bar.desc = "valid epoch[{}/{}] AED loss:{:.3f}, score:{:.3f}".format(epoch + 1,
+                                                                                 epochs,
+                                                                                 val_loss.result(),
+                                                                                 mean(validation_scores))
 
     # # writing training loss and acc
     # print("train loss", train_loss.result(), epoch)
@@ -179,9 +191,9 @@ for epoch in range(epochs):
     # print("validation accuracy", val_accuracy.result(), epoch)
 
     # only save best weights
-    # TODO: Evaluate
-    if val_accuracy.result() < best_val_error:
-        best_val_acc = val_accuracy.result()
+    # Loss and Accuracy Evaluate
+    if mean(validation_scores) > best_score:
+        best_score = mean(validation_scores)
         save_name = "./save_weights/efficientnet.ckpt"
         model.save_weights(save_name, save_format="tf")
 
@@ -190,6 +202,5 @@ for epoch in range(epochs):
         for index, (images, labels, output) in enumerate(
                 zip(validation_images, validation_labels, validation_predictions)):
             visualize_batch(images, labels, output, epoch, index, prefix)
-
 
 print("Finish.")
