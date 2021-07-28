@@ -51,7 +51,8 @@ def get_dataset(PATH, IMAGE_SIZE, label_file, check=False):
         if not image_name.endswith(".jpg"):
             continue  # not a jpg file
         image = Image.open(PATH + image_name).copy()  # RGB mode
-        index = int(image_name.removesuffix(".jpg"))
+        # index = int(image_name.removesuffix(".jpg"))
+        index = int(image_name.split(".")[0])
         assert(data_frame[index - 1][0] == index)
         shape = image.size
         # index, column, row
