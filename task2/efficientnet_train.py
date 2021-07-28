@@ -153,7 +153,7 @@ for epoch in range(epochs):
         output, loss = train_step(images, labels)
         train_scores.append(score(loss))
         # Save and Visualize the batch
-        if epoch % 10 == 0:
+        if epoch % 10 == 0 and index % 10 == 0:
             save_dir_prefix = "./train_image/train_image"
             visualize_batch(images, labels, output, epoch, index, save_dir_prefix)
 
