@@ -21,6 +21,14 @@ GAMMA Challenge Subtrack 3 Official Baseline: https://aistudio.baidu.com/aistudi
 
 ![image](https://user-images.githubusercontent.com/49013637/127119018-21780394-c880-43a0-8400-357527f278fe.png)
 
+# Environment
+
+    docker pull nvcr.io/nvidia/tensorflow:21.06-tf2-py3
+    docker run -it --name tf2 --gpus all -p 11218:22 -v /data/MICCAI2021/:/workspace/ --shm-size=128G nvcr.io/nvidia/tensorflow:21.06-tf2-py3
+    pip install matplotlib
+    pip install pandas
+    CUDA_VISIBLE_DEVICES=0 python3 efficientnet_train.py
+
 # Reference
 
 https://github.com/WZMIAOMIAO/deep-learning-for-image-processing/tree/master/tensorflow_classification/Test9_efficientNet
