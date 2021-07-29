@@ -64,7 +64,11 @@ def normalization(image, label):
 
 
 def augment(image, label):
-    # data augmentation
+    # data augmentation https://www.tensorflow.org/api_docs/python/tf/image
+    # tf.image.flip_left_right
+    # tf.image.flip_up_down
+    # tf.image.adjust_brightness(x, delta=0.1)
+    # tf.image.adjust_contrast(x, 2)
     return image, label
 
 
