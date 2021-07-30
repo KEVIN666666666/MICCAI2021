@@ -14,7 +14,7 @@ img_size = {"B0": 224,
             "B4": 380,
             "B5": 456,
             "B6": 528,
-            "B7": 900}  # 600
+            "B7": 600}  # 600
 
 num_model = "B7"
 im_height = im_width = img_size[num_model]
@@ -65,8 +65,12 @@ def normalization(image, label):
 
 def augment(image, label):
     # data augmentation https://www.tensorflow.org/api_docs/python/tf/image
-    # tf.image.flip_left_right
-    # tf.image.flip_up_down
+    # if np.random.random() > 0.5:
+    image = tf.image.flip_left_right(image)
+    label = tf.abs([0, 1] - label)
+    # if np.random.random() > 0.5:
+    image = tf.image.flip_up_down(image)
+    label = tf.abs([1, 0] - label)
     # tf.image.adjust_brightness(x, delta=0.1)
     # tf.image.adjust_contrast(x, 2)
     return image, label
