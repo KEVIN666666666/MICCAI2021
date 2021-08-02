@@ -7,6 +7,7 @@ from tensorflow.keras.losses import Loss
 from matplotlib import pyplot as plt
 import os
 
+
 img_size = {"B0": 224,
             "B1": 240,
             "B2": 260,
@@ -83,6 +84,7 @@ test_dataset = test_dataset.map(normalization).batch(BATCH_SIZE)
 
 # model compile
 # Custom loss function
+# TODO: Add Manhattan distance
 class AverageEuclideanDistance(Loss):
     def call(self, y_true, y_pred):
         # print(y_true, y_pred)
