@@ -60,20 +60,56 @@ test_dataset = tf.data.Dataset.from_tensor_slices((test_X, test_Y))
 
 # TODO: Standardization, Augmentation
 def normalization(image, label):
+    # standardization
+    # image = tf.image.per_image_standardization(image)
     # normalization
     return image / 255, label
 
 
 def augment(image, label):
     # data augmentation https://www.tensorflow.org/api_docs/python/tf/image
-    # if np.random.random() > 0.5:
-    image = tf.image.flip_left_right(image)
-    label = tf.abs([0, 1] - label)
-    # if np.random.random() > 0.5:
-    image = tf.image.flip_up_down(image)
-    label = tf.abs([1, 0] - label)
-    # tf.image.adjust_brightness(x, delta=0.1)
-    # tf.image.adjust_contrast(x, 2)
+    if np.random.random() > 0.5:
+        image = tf.image.flip_left_right(image)
+        label = tf.abs([0, 1] - label)
+    if np.random.random() > 0.5:
+        image = tf.image.flip_up_down(image)
+        label = tf.abs([1, 0] - label)
+
+    # TODO: crop
+    # rotate clockwise 90 degree
+    if np.random.random() > 0.5:
+        image = tf.image.rot90(image, k=3)
+        """
+        based on the row is y axis, column is x axis,
+        x = 2 * (x - 0.5)
+        y = 2 * (y - 0.5)
+        X = -y
+        Y = x
+        x' = (X + 1) / 2
+        y' = (Y + 1) / 2
+        return in (row, column) format, the same as the label format, (y', x')
+        """
+        x = label[1]
+        y = label[0]
+        x = 2 * (x - 0.5)
+        y = 2 * (y - 0.5)
+        X = -y
+        Y = x
+        x_prime = (X + 1) / 2
+        y_prime = (Y + 1) / 2
+        label = tf.cast([y_prime, x_prime], label.dtype)
+
+    # heavy augmentation,
+    # expectation every 2 images can do one of these augmentation
+    if np.random.random() > 0.875:
+        image = tf.image.random_brightness(image, max_delta=0.2, seed=SEED)
+    if np.random.random() > 0.875:
+        image = tf.image.random_contrast(image, lower=0.8, upper=1.2, seed=SEED)
+    if np.random.random() > 0.875:
+        image = tf.image.random_hue(image, max_delta=0.03, seed=SEED)  # 色调
+    if np.random.random() > 0.875:
+        image = tf.image.random_saturation(image, lower=0.5, upper=2.0, seed=SEED)  # 饱和度
+
     return image, label
 
 
@@ -150,7 +186,7 @@ def visualize_batch(images, labels, output, epoch, index, prefix):
 
 best_score = 0
 best_epoch = -1
-epochs = 100
+epochs = 1000
 for epoch in range(epochs):
     train_loss.reset_states()  # clear history info
     # train_accuracy.reset_states()  # clear history info
