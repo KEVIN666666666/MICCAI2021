@@ -8,6 +8,8 @@ from matplotlib import pyplot as plt
 import os
 
 
+tf.get_logger().setLevel('ERROR')
+
 img_size = {"B0": 224,
             "B1": 240,
             "B2": 260,
@@ -97,9 +99,12 @@ def augment(image, label):
         Y = x
         x_prime = (X + 1) / 2
         y_prime = (Y + 1) / 2
-        label = tf.cast([y_prime, x_prime], label.dtype)
+        label = tf.concat([y_prime, x_prime], 0)
 
-    # heavy augmentation,
+    # heavy augmentation, will release tensorflow warning
+    # "WARNING:tensorflow:The operation `tf.image.convert_image_dtype` will be skipped
+    # since the input and output dtypes are identical."
+
     # expectation every 2 images can do one of these augmentation
     if np.random.random() > 0.875:
         image = tf.image.random_brightness(image, max_delta=0.2, seed=SEED)
@@ -111,8 +116,8 @@ def augment(image, label):
         image = tf.image.random_saturation(image, lower=0.5, upper=2.0, seed=SEED)  # 饱和度
 
     # rescale to [0, 1] range using min-max normalization
-    maximum = image.numpy().max()
-    minimum = image.numpy().min()
+    maximum = tf.keras.backend.max(image)
+    minimum = tf.keras.backend.min(image)
     image = (image - minimum) / (maximum - minimum)
 
     return image, label
@@ -202,7 +207,9 @@ for epoch in range(epochs):
     train_bar = tqdm(train_dataset)
     train_scores = []
     for index, (images, labels) in enumerate(train_bar):
-        images, labels = augment(images, labels)
+        images, labels = augment(images[0], labels[0])
+        images = tf.expand_dims(images, 0)
+        labels = tf.expand_dims(labels, 0)
         output, loss = train_step(images, labels)
         train_scores.append(score(loss))
         # Save and Visualize the batch
