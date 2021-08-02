@@ -110,11 +110,16 @@ def augment(image, label):
     if np.random.random() > 0.875:
         image = tf.image.random_saturation(image, lower=0.5, upper=2.0, seed=SEED)  # 饱和度
 
+    # rescale to [0, 1] range using min-max normalization
+    maximum = image.numpy().max()
+    minimum = image.numpy().min()
+    image = (image - minimum) / (maximum - minimum)
+
     return image, label
 
 
 BATCH_SIZE = 1
-train_dataset = train_dataset.map(normalization).map(augment).batch(BATCH_SIZE)
+train_dataset = train_dataset.map(normalization).batch(BATCH_SIZE)
 test_dataset = test_dataset.map(normalization).batch(BATCH_SIZE)
 
 
@@ -197,6 +202,7 @@ for epoch in range(epochs):
     train_bar = tqdm(train_dataset)
     train_scores = []
     for index, (images, labels) in enumerate(train_bar):
+        images, labels = augment(images, labels)
         output, loss = train_step(images, labels)
         train_scores.append(score(loss))
         # Save and Visualize the batch
